@@ -1,7 +1,3 @@
-# ad_boredom_analyzer/metrics.py
-"""
-Calculates various metrics from ad interaction data, including boredom score.
-"""
 import pandas as pd
 import numpy as np
 from . import config

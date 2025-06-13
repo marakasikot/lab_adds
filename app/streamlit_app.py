@@ -1,13 +1,10 @@
-# streamlit_app.py
 import streamlit as st
 import pandas as pd
 import os
 
-# Імпорт модулів з пакету. Переконайся, що структура папок правильна
-# і ad_boredom_project є в PYTHONPATH або ти запускаєш з кореня проєкту.
 from ad_boredom_analyzer import data_generator, metrics, model, visualization, config
 
-st.set_page_config(layout="wide", page_title="Ad Boredom Analyzer v2.1")  # Змінив версію трохи
+st.set_page_config(layout="wide", page_title="Ad Boredom")
 
 
 def run_analysis_pipeline(df_raw: pd.DataFrame, saturation_pt: int, boredom_thresh: float):
@@ -28,7 +25,7 @@ def run_analysis_pipeline(df_raw: pd.DataFrame, saturation_pt: int, boredom_thre
         df_boredom = metrics.calculate_boredom_score(df_agg, saturation_point=saturation_pt)
         df_recs = model.get_recommendations(df_boredom, threshold=boredom_thresh)
         return "success", df_recs
-    except ValueError as e:  # Обробка ValueError з metrics або model
+    except ValueError as e:
         st.error(f"Помилка під час обробки даних: {e}")
         return "processing_error", pd.DataFrame()
     except Exception as e:
@@ -36,13 +33,12 @@ def run_analysis_pipeline(df_raw: pd.DataFrame, saturation_pt: int, boredom_thre
         return "unexpected_error", pd.DataFrame()
 
 
-# --- Session State ---
 if 'raw_data' not in st.session_state: st.session_state.raw_data = pd.DataFrame()
 if 'analyzed_data' not in st.session_state: st.session_state.analyzed_data = pd.DataFrame()
 if 'analysis_status' not in st.session_state: st.session_state.analysis_status = None
 if 'selected_ad_type_for_display' not in st.session_state: st.session_state.selected_ad_type_for_display = None
 
-st.title("🎯 Аналізатор Набридання Реклами v2.1")
+st.title("🎯Набридання Реклами")
 st.markdown("Інструмент для аналізу набридання реклами, отримання рекомендацій та візуалізації.")
 
 # --- Sidebar ---
@@ -66,7 +62,7 @@ if input_method == "Згенерувати Демо-Дані":
         )
     else:
         st.sidebar.warning("Оберіть типи реклами для налаштування кількості записів.")
-        num_records_gen_per_type = approx_recs_total // len(config.AD_TYPES)  # Default if none selected
+        num_records_gen_per_type = approx_recs_total // len(config.AD_TYPES)
 
     if st.sidebar.button("Згенерувати Дані", key="generate_data_btn"):
         if not gen_ad_types:
@@ -209,13 +205,11 @@ if st.session_state.analysis_status == "success" and not st.session_state.analyz
                 visualization.plot_boredom_distribution_per_ad_type(st.session_state.analyzed_data, selected_type),
                 use_container_width=True)
         with tab3:
-            num_top_users_plot = st.slider("Кількість топ-користувачів для графіка:", 5, 50, 10,
-                                           key=f"slider_top_users_{selected_type}")
             st.plotly_chart(visualization.plot_user_boredom_variability(st.session_state.analyzed_data, selected_type,
-                                                                        num_top_users=num_top_users_plot),
-                            use_container_width=True)
+                num_top_users=10),
+                use_container_width=True)
             st.caption(
-                f"Розподіл оцінок набридання для {num_top_users_plot} найбільш активних користувачів (за кількістю унікальних реклам типу '{selected_type}').")
+                f"Розподіл оцінок набридання для {10} найбільш активних користувачів (за кількістю унікальних реклам типу '{selected_type}').")
     else:
         st.info("Результати аналізу для обраного типу порожні або тип не обрано.")
 
@@ -256,7 +250,6 @@ with st.sidebar.expander("Моделювання змін (спрощене)"):
                       delta=f"{sim_ctr_change:.3f} vs поточний")
             st.metric(label="Симульоване середнє набридання", value=f"{simulated_boredom:.3f}",
                       delta=f"{sim_boredom_change:.3f} vs поточне")
-            st.caption("⚠️ **Увага:** Дуже спрощена симуляція.")
 
             other_types_strat = [t for t in config.AD_TYPES if t != selected_type_strat]
             if other_types_strat:
@@ -289,7 +282,6 @@ with st.sidebar.expander("Інструкція"):
     3.  **Оберіть Тип Реклами для Детального Перегляду** у головній частині (після завантаження/генерації даних).
     4.  **Натисніть "Провести Повний Аналіз"**. Аналіз проводиться для всіх даних, але результати та графіки будуть деталізовані для обраного типу.
     5.  **Перегляньте Результати:** Сповіщення, таблицю з рекомендаціями та інтерактивні візуалізації.
-    6.  **Моделювання Стратегії (Концепт):** У бічній панелі можна спробувати змоделювати вплив зміни показів або порівняти з іншими типами реклами (дуже спрощено).
+    6.  **Моделювання Стратегії (Концепт):** У бічній панелі можна спробувати змоделювати вплив зміни показів або порівняти з іншими типами реклами.
     """)
-st.sidebar.markdown("---")
-st.sidebar.markdown("Розроблено з ❤️ за допомогою Streamlit & Plotly.")
+

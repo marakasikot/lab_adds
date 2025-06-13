@@ -1,7 +1,3 @@
-# ad_boredom_analyzer/model.py
-"""
-Applies decision rules based on boredom score to classify ads.
-"""
 import pandas as pd
 import numpy as np
 from . import config
